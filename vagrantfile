@@ -1,6 +1,6 @@
 # -*- mode: ruby -*-
 # vim: set ft=ruby :
-
+# check this https://www.vagrantup.com/docs/provisioning/basic_usage#dependency-provisioners
  MACHINES = {
   :vm1 => {
         :box_name => "centos/7",
@@ -26,31 +26,39 @@ Vagrant.configure("2") do |config|
 		      end
 			box.vm.provision "shell", inline: <<-SHELL
 				mkdir -p ~root/.ssh; cp ~vagrant/.ssh/auth* ~root/.ssh
-				SHELL
-			    
+				echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config
+                        sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
+                        systemctl reload sshd
+                        SHELL
                     case boxname.to_s
                     when "vm1"
                       box.vm.provision "shell", inline: <<-SHELL
-                        mkdir /home/vagrant/dir{1,2}
-                        touch /home/vagrant/file{1..3}
-                        ls -lah /home/vagrant/
+                        yum install -y epel-release
                         yum --enablerepo=epel -y install sshpass 
-                        #ssh-keygen -t rsa -b 2048 -P "" -f /home/vagrant/.ssh/id_rsa -q
-                        #chown vagrant:vagrant /home/vagrant/.ssh/
-                        #sshpass -p vagrant ssh-copy-id -i /home/vagrant/.ssh/id_rsa vagrant@10.10.10.11 
-                        #scp /home/vagrant/dir{1,2} vagrant@10.10.10.11:/home/vagrant/
-                        cat /home/vagrant/.ssh/*
-                    
                         SHELL
                     end
                     case boxname.to_s
                     when "vm2"
-                          box.vm.provision "shell", inline: <<-SHELL
-                            cat /home/vagrant/.ssh/*
-                            SHELL
-			
-                     
+                        box.vm.provision "shell", inline: <<-SHELL
+                        cat /home/vagrant/.ssh/*
+                        ls -lah
+                        SHELL
                     end
-            end
+                    case boxname.to_s
+                    when "vm1"
+                        box.vm.provision "shell", inline: <<-SHELL
+                        cat /home/vagrant/.ssh/*
+                        ssh-keygen -t rsa -b 2048 -P "" -f /home/vagrant/.ssh/id_rsa -q
+                        chown -R vagrant:vagrant /home/vagrant/.ssh/
+                        sshpass -p vagrant ssh-copy-id -o StrictHostKeyChecking=no -i /home/vagrant/.ssh/id_rsa vagrant@10.10.10.11 
+                        scp -r /home/vagrant/dir{1,2} vagrant@10.10.10.11:/home/vagrant/
+                        cat /home/vagrant/.ssh/*
+                        mkdir /home/vagrant/dir{1,2}
+                        touch /home/vagrant/file{1..3}
+                        ls -lah /home/vagrant/
+                        scp -o StrictHostKeyChecking=no -r /home/vagrant/dir{1,2} vagrant@10.10.10.11:/home/vagrant/
+                        SHELL
+                    end
+                  end
 	end
 end
