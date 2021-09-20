@@ -5,8 +5,7 @@ There are 3 vm:
     vm2-Router\
     vm3-DBserver like mysql it would be postgres, for example
 
-    ***Network-vm1-web-server***
-
+***Network-vm1-web-server***
 |       subnet      | network address  |  min address  |  max address  | total hosts  |   broadcast   |
 |-------------------|:----------------:|--------------:|--------------:|------------- |--------------:|
 | External net      | 10.10.10.0/30    | 10.10.10.1    | 10.10.10.2    |     2        | 10.10.10.11   |
@@ -28,7 +27,6 @@ There are 3 vm:
 | Network adresses  |      Nic1        |    Nic2       |    Nic3       |     Nic4     |
 |-------------------|:----------------:|--------------:|--------------:|-------------:| 
 |    Address        |                  |   10.10.11.2  |  10.10.12.1   |  10.10.12.5  |
-
 
 ***Network-vm3-Database-server***
 |       subnet      | network address  |  min address  |  max address  | total hosts  |   broadcast   |
