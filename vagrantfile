@@ -4,68 +4,74 @@
  MACHINES = {
   :vm1 => {
         :box_name => "centos/7",
-        :ip_addr => [
-                      {ip: '10.10.10.1', adapter: 1, netmask: "255.255.255.252", virtualbox__intnet: "external-net"},
-                      {ip: '10.10.11.1', adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "menegment-net"},
-                      {ip: '10.10.12.1', adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "intranet-1"}
+        :net => [
+                      {ip: '10.10.10.1', adapter: 2, netmask: '255.255.255.252', virtualbox__intnet: 'external-net'}, #public 
+                      {ip: '10.10.11.1', adapter: 3, netmask: '255.255.255.0', virtualbox__intnet: 'menegment-net'}, #bridge via dhcp
+                      {ip: '10.10.12.1', adapter: 4, netmask: '255.255.255.252', virtualbox__intnet: 'intranet-1'}
                     ]
   },
   :vm2 => {
         :box_name => "centos/7",
-        :ip_addr => [
-                      {ip: '10.10.11.2', adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "menegment-net"},
-                      {ip: '10.10.12.2', adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "intranet-1"},
-                      {ip: '10.10.12.5', adapter: 4, netmask: "255.255.255.252", virtualbox__intnet: "intranet-2"}
+        :net => [
+                      {ip: '10.10.11.2', adapter: 2, netmask: '255.255.255.0', virtualbox__intnet: 'menegment-net'},
+                      {ip: '10.10.12.2', adapter: 3, netmask: '255.255.255.252', virtualbox__intnet: 'intranet-1'},
+                      {ip: '10.10.12.5', adapter: 4, netmask: '255.255.255.252', virtualbox__intnet: 'intranet-2'}
                     ]
   },
   :vm3 => {
         :box_name => "centos/7",
-        :ip_addr => [
-                      {ip: '10.10.11.3', adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "menegment-net"},
-                      {ip: '10.10.12.6', adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "intranet-2"}
+        :net => [
+                      {ip: '10.10.11.3', adapter: 2, netmask: '255.255.255.0', virtualbox__intnet: 'menegment-net'},
+                      {ip: '10.10.12.6', adapter: 3, netmask: '255.255.255.252', virtualbox__intnet: 'intranet-2'}
                    ]
   }
 }
 
 Vagrant.configure("2") do |config|
 
-	MACHINES.each do |boxname, boxconfig|
+      config.vm.box_check_update = "false"
+      config.vm.provider "virtualbox" do |vb|
+        vb.memory = 256
+        vb.cpus = 1
+      end
+      
+      MACHINES.each do |boxname, boxconfig|
 
 		config.vm.define boxname do |box|
 
 			box.vm.box = boxconfig[:box_name]
 			box.vm.host_name = boxname.to_s
-			box.vm.network "private_network", ip: boxconfig[:ip_addr]
-			box.vm.provider :virtualbox do |vb|
-			  vb.customize ["modifyvm", :id, "--memory", "254"]
-		      end
-			box.vm.provision "shell", inline: <<-SHELL
+			  boxconfig[:net].each do |ipconf|
+                      box.vm.network "private_network", **ipconf
+                  end
+			
+                  box.vm.provision "shell", inline: <<-SHELL
 				mkdir -p ~root/.ssh; cp ~vagrant/.ssh/auth* ~root/.ssh
 				SHELL
 			    
-                    case boxname.to_s
-                    when "vm1"
-                      box.vm.provision "shell", inline: <<-SHELL
-                        mkdir /home/vagrant/dir{1,2}
-                        touch /home/vagrant/file{1..3}
-                        ls -lah /home/vagrant/
-                        yum --enablerepo=epel -y install sshpass 
+ #                   case boxname.to_s
+ #                   when "vm1"
+ #                     box.vm.provision "shell", inline: <<-SHELL
+#                        mkdir /home/vagrant/dir{1,2}
+#                        touch /home/vagrant/file{1..3}
+#                        ls -lah /home/vagrant/
+#                        yum --enablerepo=epel -y install sshpass 
                         #ssh-keygen -t rsa -b 2048 -P "" -f /home/vagrant/.ssh/id_rsa -q
                         #chown vagrant:vagrant /home/vagrant/.ssh/
                         #sshpass -p vagrant ssh-copy-id -i /home/vagrant/.ssh/id_rsa vagrant@10.10.10.11 
                         #scp /home/vagrant/dir{1,2} vagrant@10.10.10.11:/home/vagrant/
-                        cat /home/vagrant/.ssh/*
+ #                       cat /home/vagrant/.ssh/*
                     
-                        SHELL
-                    end
-                    case boxname.to_s
-                    when "vm2"
-                          box.vm.provision "shell", inline: <<-SHELL
-                            cat /home/vagrant/.ssh/*
-                            SHELL
+ #                       SHELL
+ #                   end
+ #                   case boxname.to_s
+ #                   when "vm2"
+ #                         box.vm.provision "shell", inline: <<-SHELL
+ #                           cat /home/vagrant/.ssh/*
+ #                           SHELL
 			
                      
-                    end
+  #                  end
             end
 	end
 end
