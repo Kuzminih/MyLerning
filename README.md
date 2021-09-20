@@ -14,7 +14,7 @@ There are 3 vm:
 
 | Network adresses  |      Nic1        |    Nic2       |    Nic3       |     Nic4     |
 |-------------------|:----------------:|--------------:|--------------:|-------------:| 
-|    Address        |    10.10.10.1    |   10.10.11.1  |  10.10.12.1   |              |
+|    Address        |    10.10.10.1    | 10.10.11.1    | 10.10.12.1    |              |
 
 ***Network-vm2-router***
 |       subnet      | network address  |  min address  |  max address  | total hosts  |   broadcast   |
@@ -26,7 +26,7 @@ There are 3 vm:
 
 | Network adresses  |      Nic1        |    Nic2       |    Nic3       |     Nic4     |
 |-------------------|:----------------:|--------------:|--------------:|-------------:| 
-|    Address        |                  |   10.10.11.2  |  10.10.12.1   |  10.10.12.5  |
+|    Address        |                  | 10.10.11.2    | 10.10.12.1    | 10.10.12.5   |
 
 ***Network-vm3-Database-server***
 |       subnet      | network address  |  min address  |  max address  | total hosts  |   broadcast   |
