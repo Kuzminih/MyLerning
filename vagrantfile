@@ -5,8 +5,9 @@
   :vm1 => {
         :box_name => "centos/7",
         :net => [
-                      {ip: '10.10.10.1', adapter: 2, netmask: '255.255.255.252', virtualbox__intnet: 'external-net'}, #public 
-                      {ip: '10.10.11.1', adapter: 3, netmask: '255.255.255.0', virtualbox__intnet: 'menegment-net'}, #bridge via dhcp
+                     # {bridge: 'wlp2s0: WiFi',ip: '10.10.10.1', netmask: '255.255.255.0'},
+                      {ip: '10.10.10.2', adapter: 2, netmask: '255.255.255.252', hostonly: 'external-net'},
+                      {ip: '10.10.11.1', adapter: 3, netmask: '255.255.255.0', virtualbox__intnet: 'menegment-net'},
                       {ip: '10.10.12.1', adapter: 4, netmask: '255.255.255.252', virtualbox__intnet: 'intranet-1'}
                     ]
   },
@@ -44,10 +45,17 @@ Vagrant.configure("2") do |config|
 			  boxconfig[:net].each do |ipconf|
                       box.vm.network "private_network", **ipconf
                   end
-			
+
+#                  if boxconfig.key?(:public)
+#                        box.vm.network "public_network", boxconfig[:public]
+#                      end
+              
                   box.vm.provision "shell", inline: <<-SHELL
 				mkdir -p ~root/.ssh; cp ~vagrant/.ssh/auth* ~root/.ssh
-				SHELL
+				echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config
+                        sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
+                        systemctl reload sshd
+                        SHELL
 			    
  #                   case boxname.to_s
  #                   when "vm1"
