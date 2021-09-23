@@ -2,15 +2,7 @@
 # vim: set ft=ruby :
 
  MACHINES = {
-  :vm1 => {
-        :box_name => "centos/7",
-        :net => [
-                     # {bridge: 'wlp2s0: WiFi',ip: '10.10.10.1', netmask: '255.255.255.0'},
-                      {ip: '10.10.10.2', adapter: 2, netmask: '255.255.255.252', hostonly: 'external-net'},
-                      {ip: '10.10.11.1', adapter: 3, netmask: '255.255.255.0', virtualbox__intnet: 'menegment-net'},
-                      {ip: '10.10.12.1', adapter: 4, netmask: '255.255.255.252', virtualbox__intnet: 'intranet-1'}
-                    ]
-  },
+  
   :vm2 => {
         :box_name => "centos/7",
         :net => [
@@ -25,6 +17,15 @@
                       {ip: '10.10.11.3', adapter: 2, netmask: '255.255.255.0', virtualbox__intnet: 'menegment-net'},
                       {ip: '10.10.12.6', adapter: 3, netmask: '255.255.255.252', virtualbox__intnet: 'intranet-2'}
                    ]
+  },
+  :vm1 => {
+        :box_name => "centos/7",
+        :net => [
+                     # {bridge: 'wlp2s0: WiFi',ip: '10.10.10.1', netmask: '255.255.255.0'},
+                      {ip: '10.10.10.2', adapter: 2, netmask: '255.255.255.252', hostonly: 'external-net'},
+                      {ip: '10.10.11.1', adapter: 3, netmask: '255.255.255.0', virtualbox__intnet: 'menegment-net'},
+                      {ip: '10.10.12.1', adapter: 4, netmask: '255.255.255.252', virtualbox__intnet: 'intranet-1'}
+                    ]
   }
 }
 
@@ -45,23 +46,27 @@ Vagrant.configure("2") do |config|
 			  boxconfig[:net].each do |ipconf|
                       box.vm.network "private_network", **ipconf
             end
-              
+                  
                   box.vm.provision "shell", inline: <<-SHELL
-				mkdir -p ~root/.ssh; cp ~vagrant/.ssh/auth* ~root/.ssh
-				echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config
+                				mkdir -p ~root/.ssh;
+                        echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCnly2pvH6Le2Y4z3yAnSd6Vmubk/Fnd0MENLnYVvtTbvxzqt8z7LNRXH/MOgVIc/CJjUaPhAbr3Kd+Tw/I/PdEDMD3Ek5RD4p1asVuQU1nDUfR1syFvuWF+LmPll8NdtNsWzPfdCyw5zwcqM+sjHJAQBwEguRo13O9/0dOp8S7RqJuyjwUHKdGAGnw9mJXqC5tN+nXujLXsPkCuHaYmcoJyQiaVKCknX0PsHOX75ye4v+n9xDS/k4zes37bsVGekG0v8PpqMpeotZAVyAaNcff5LkyVu9N6KYn95h8LXkO8nVJwqQe+ureoAmN0VSwMvAW11s5MFOFJjRxme09Nt+zd5/BIlPyfgSmezPcwXRJB3RnC6wTdJIoCJzK+HMZcZ0a8RwX9uV3CITesgMtAy4qG75DFT4ygoGiCAq4m/LgL7GGqTgu+ZBrROFRac0BrybYUKcFyr+tzixXRcMDDeS3HhMYnflh771XYcQJvAZZxZstCVfraXG789B61OSgEos= fedor@fedor-X756UAM" >> /root/.ssh/authorized_keys
+                        cp -f /root/.ssh/* /home/vagrant/.ssh/
+				                echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config
                         sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
                         systemctl reload sshd
                         SHELL
+                  
 			    
                     case boxname.to_s
                     when "vm1"
                       box.vm.provision "shell", inline: <<-SHELL
-                        yum --enablerepo=epel -y install sshpass 
-                        ssh-keygen -t rsa -b 2048 -P "" -f /home/root/.ssh/id_rsa -q
+#                        yum install epel-release -y
+#                        yum --enablerepo=epel -y install sshpass 
+#                        ssh-keygen -t rsa -b 2048 -P "" -f /home/vagrant/.ssh/id_rsa -q
 #                        chown vagrant:vagrant /home/vagrant/.ssh/
-                        sshpass -p vagrant ssh-copy-id -i /home/root/.ssh/id_rsa root@10.10.11.2
-                        sshpass -p vagrant ssh-copy-id -i /home/root/.ssh/id_rsa root@10.10.11.3
-                        cat /home/root/.ssh/*
+#                        sshpass -p vagrant ssh-copy-id -i /home/vagrant/.ssh/id_rsa root@10.10.11.2
+#                        sshpass -p vagrant ssh-copy-id -i /home/vagrant/.ssh/id_rsa root@10.10.11.3
+#                        cat /root/.ssh/*
                     
                         SHELL
                     end
