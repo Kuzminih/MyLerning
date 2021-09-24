@@ -3,7 +3,7 @@
 
  MACHINES = {
   
-  :vm2 => {
+  :vm2-router => {
         :box_name => "centos/7",
         :net => [
                       {ip: '10.10.11.2', adapter: 2, netmask: '255.255.255.0', virtualbox__intnet: 'menegment-net'},
@@ -11,14 +11,14 @@
                       {ip: '10.10.12.5', adapter: 4, netmask: '255.255.255.252', virtualbox__intnet: 'intranet-2'}
                     ]
   },
-  :vm3 => {
+  :vm3-db => {
         :box_name => "centos/7",
         :net => [
                       {ip: '10.10.11.3', adapter: 2, netmask: '255.255.255.0', virtualbox__intnet: 'menegment-net'},
                       {ip: '10.10.12.6', adapter: 3, netmask: '255.255.255.252', virtualbox__intnet: 'intranet-2'}
                    ]
   },
-  :vm1 => {
+  :vm1-nginx => {
         :box_name => "centos/7",
         :net => [
                       {ip: '10.10.10.2', adapter: 2, netmask: '255.255.255.252', hostonly: 'external-net'},
