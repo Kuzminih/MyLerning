@@ -1,4 +1,49 @@
 ---
+
+# Input rules for internal networks
+- name: "Internal-1 network"
+  iptables:
+    chain: INPUT
+    source: "10.10.12.2/28"
+    jump: ACCEPT
+
+- name: "Managment network"
+  iptables:
+    chain: INPUT
+    source: "10.10.11.0/24"
+    jump: ACCEPT
+
+
 # tasks file for router
-- name: 'Routing to vm3-db'
-  
+- name: "Accept 22 port"
+  ansible.builtin.iptables:
+    chain: INPUT
+    source: 10.10.11.254
+    protocol: tcp
+    destination_port: '22'
+    jump: ACCEPT
+  become: yes
+
+#- name: "Route all packets to other hosts"
+#  iptables:
+#    table: nat
+#    chain: PREROUTING
+#    in_interface: "eth1"
+#    to_destination: "10.10.12.2"
+#    jump: DNAT
+
+#- name: "Route all packets to other hosts"
+#  iptables:
+#    table: nat
+#    chain: PREROUTING
+#    in_interface: "eth1"
+#    to_destination: "10.10.12.2"
+#    jump: DNAT
+
+ #- name: "Route to other hosts"
+#  iptables:
+#    chain: FORWARD
+#    source: "192.168.0.89" #ansible host
+#    dst_range: "10.10.11.0-10.10.11.254"
+#    jump: ACCEPT 
+

@@ -1,0 +1,5 @@
+---
+- name: "web settings"
+  hosts: web
+  roles:
+    - 'web'

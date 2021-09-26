@@ -1,33 +1,91 @@
 ---
-# tasks file for web
+
+# NAT settings
 - name: "NAT"
-  ansible.builtin.iptables:
+  iptables:
     table: 'nat'
     chain: POSTROUTING
-    source: '{{ ansible-host }}'
-    protocol: tcp
-    jump: ACCEPT
-  become: yes
+    source: '10.10.12.0/24'
+    out_interface: 'eth1'
+    jump: MASQUERADE
 
-- name: "Accept 80 & 443 port"
-  ansible.builtin.iptables:
+# Routing to external network for host Router
+- name: "Out packages rule Route to external network"
+  iptables:
+    table: 'nat'
+    chain: PREROUTING
+    in_interface: 'eth3'
+    destination: '! 10.10.12.1'
+    source: '10.10.12.2'
+    jump: DNAT
+    to_destination: '192.168.0.1'
+
+# Rules for forwarding internal networks
+- name: 'Forwarding for internal networks'
+  iptables:
+    table: 'filter'
+    chain: FORWARD
+    source: '10.10.12.0/24'
+    jump: ACCEPT
+
+- name: 'Forwarding for internal networks'
+  iptables:
+    table: 'filter'
+    chain: INPUT
+    destination: '192.168.0.1'
+    jump: ACCEPT
+
+# Rules for external network
+- name: "Rule from external network to Router host"
+  iptables:
+    table: 'filter'
+    chain: FORWARD
+    destination: '10.10.12.2'
+    jump: ACCEPT
+
+# Open web ports to web server
+- name: "Accept 80 port"
+  iptables:
     chain: INPUT
     protocol: tcp
-    destination_port:
-      - "80"
-      - "443"
-    jump: ACCEPT
-  become: yes
-
-- name: "Route to other hosts"
-  ansible.builtin.iptables:
-    chain: FORWARD
-    source: '{{ ansible-host }}'
-    dst_range: 10.10.11.0-10.10.11.254
-    port: 22
+    destination_port: '80'
     jump: ACCEPT
 
-- name: "Drop other connection"
-  ansible.builtin.iptables:
+- name: "Accept 443 port"
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: '443'
+    jump: ACCEPT
+
+# Input rules for internal networks
+- name: "Internal-1 network"
+  iptables:
+    chain: INPUT
+    source: "10.10.12.2/30"
+    jump: ACCEPT
+
+- name: "Managment network"
+  iptables:
+    chain: INPUT
+    source: "10.10.11.0/24"
+    jump: ACCEPT
+
+# Drop policy
+- name: "Drop other connection with INPUT policy"
+  iptables:
     chain: INPUT
     policy: DROP
+
+- name: "Drop other connection with FORWARD policy"
+  iptables:
+    chain: FORWARD
+    policy: DROP
+
+# Systctl settings for using forwardig scheme
+- name: "sysctl"
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+    reload: True
