@@ -1,5 +1,5 @@
 ---
-
+# drop rules
 # NAT settings
 - name: "NAT"
   iptables:
@@ -15,10 +15,19 @@
     table: 'nat'
     chain: PREROUTING
     in_interface: 'eth3'
-    destination: '! 10.10.12.1'
     source: '10.10.12.2'
     jump: DNAT
     to_destination: '192.168.0.1'
+
+#- name: "Out packages rule Route to external network"
+#  iptables:
+#    table: 'nat'
+#    chain: PREROUTING
+#    in_interface: 'eth3'
+#    destination: '10.10.12.1'
+#    source: '10.10.12.2'
+#    jump: ACCEPT
+#    to_destination: '192.168.0.1'
 
 # Rules for forwarding internal networks
 - name: 'Forwarding for internal networks'

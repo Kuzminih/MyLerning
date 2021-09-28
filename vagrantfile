@@ -55,8 +55,10 @@ Vagrant.configure("2") do |config|
       	mkdir -p ~root/.ssh;
         echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCnly2pvH6Le2Y4z3yAnSd6Vmubk/Fnd0MENLnYVvtTbvxzqt8z7LNRXH/MOgVIc/CJjUaPhAbr3Kd+Tw/I/PdEDMD3Ek5RD4p1asVuQU1nDUfR1syFvuWF+LmPll8NdtNsWzPfdCyw5zwcqM+sjHJAQBwEguRo13O9/0dOp8S7RqJuyjwUHKdGAGnw9mJXqC5tN+nXujLXsPkCuHaYmcoJyQiaVKCknX0PsHOX75ye4v+n9xDS/k4zes37bsVGekG0v8PpqMpeotZAVyAaNcff5LkyVu9N6KYn95h8LXkO8nVJwqQe+ureoAmN0VSwMvAW11s5MFOFJjRxme09Nt+zd5/BIlPyfgSmezPcwXRJB3RnC6wTdJIoCJzK+HMZcZ0a8RwX9uV3CITesgMtAy4qG75DFT4ygoGiCAq4m/LgL7GGqTgu+ZBrROFRac0BrybYUKcFyr+tzixXRcMDDeS3HhMYnflh771XYcQJvAZZxZstCVfraXG789B61OSgEos= fedor@fedor-X756UAM" >> /root/.ssh/authorized_keys
         cp -f /root/.ssh/* /home/vagrant/.ssh/
-			  echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config
-        sed -i "/^[^#]*PubkeyAuthentication[[:space:]]no/c\^PubkeyAuthentication yes" /etc/ssh/sshd_config
+			  # echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config
+        sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
+        sed -i "/^#*PubkeyAuthentication[[:space:]]yes/c\PubkeyAuthentication yes" /etc/ssh/sshd_config
+        PasswordAuthentication no
         ip a
         systemctl reload sshd
         SHELL

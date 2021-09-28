@@ -1,10 +1,29 @@
 ---
+#forward rules
+# NAT settings
+- name: "NAT"
+  iptables:
+    table: 'nat'
+    chain: POSTROUTING
+    source: '10.10.12.0/24'
+    out_interface: 'eth2'
+    jump: MASQUERADE
+
+- name: "Out packages rule Route to external network"
+  iptables:
+    table: 'nat'
+    chain: PREROUTING
+    in_interface: 'eth2'
+    destination: '! 10.10.12.2'
+    source: '10.10.12.0/24' # 10.10.12.1
+    jump: DNAT
+    to_destination: '192.168.0.1'
 
 # Input rules for internal networks
-- name: "Internal-1 network"
+- name: "Internal network"
   iptables:
     chain: INPUT
-    source: "10.10.12.2/28"
+    source: "10.10.12.0/24"
     jump: ACCEPT
 
 - name: "Managment network"
@@ -13,16 +32,38 @@
     source: "10.10.11.0/24"
     jump: ACCEPT
 
-
-# tasks file for router
-- name: "Accept 22 port"
-  ansible.builtin.iptables:
-    chain: INPUT
-    source: 10.10.11.254
-    protocol: tcp
-    destination_port: '22'
+# Forwarding policy for connection to external network
+- name: "Forwarding for internal networks"
+  iptables:
+    table: 'filter'
+    chain: FORWARD
+    source: "10.10.12.0/24"
     jump: ACCEPT
-  become: yes
+
+# Drop policy
+- name: "Drop other connection with INPUT policy"
+  iptables:
+    chain: INPUT
+    policy: DROP
+
+# Systctl settings for using forwardig scheme
+- name: "sysctl"
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+    reload: True
+
+
+## tasks file for router
+#- name: "Accept 22 port"
+#  ansible.builtin.iptables:
+#    chain: INPUT
+#    source: '10.10.11.254'
+#    protocol: tcp
+#    destination_port: '22'
+#    jump: ACCEPT
+#  become: yes
 
 #- name: "Route all packets to other hosts"
 #  iptables:
