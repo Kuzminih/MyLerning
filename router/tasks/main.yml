@@ -1,6 +1,6 @@
 ---
 #forward rules
-# NAT settings
+# NAT settings fo  external connection 
 - name: "NAT"
   iptables:
     table: 'nat'
@@ -54,7 +54,11 @@
     sysctl_set: yes
     reload: True
 
-
+#Set time zone on hosts(we can apply this seeting in vagrantfile)
+- name: "Set timezone to Asia/Irkutsk"
+  timezone:
+    name: Asia/Irkutsk
+    
 ## tasks file for router
 #- name: "Accept 22 port"
 #  ansible.builtin.iptables:
