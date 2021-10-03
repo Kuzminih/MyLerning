@@ -1,0 +1,101 @@
+---
+- name: "Configuration firewall and routing with iptables service for host vm1 web"
+  hosts: web
+  become: true
+
+  tasks:
+    - name: "NAT"
+      iptables:
+        table: 'nat'
+        chain: POSTROUTING
+        out_interface: 'eth0'
+        jump: MASQUERADE
+
+    - name: "Forward interfaces"
+      iptables:
+        table: 'filter'
+        chain: FORWARD
+        in_interface: eth0
+        jump: ACCEPT
+
+    - name: "Forward interfaces"
+      iptables:
+        table: 'filter'
+        chain: FORWARD
+        out_interface: eth0
+        jump: ACCEPT
+
+    - name: "input 80 ports on local host"
+      ansible.builtin.iptables:
+        chain: INPUT
+        protocol: 'tcp'
+        destination_port: '80'
+        jump: ACCEPT
+
+    - name: "input 443 ports on local host"
+      ansible.builtin.iptables:
+        chain: INPUT
+        protocol: 'tcp'
+        destination_port: '443'
+        jump: ACCEPT
+
+    - name: "Create INPUT rules for internal network"
+      iptables:
+        table: 'filter'
+        chain: INPUT
+        source: '10.10.12.0/24'
+        jump: ACCEPT
+
+    - name: "Create INPUT rules for managment network"
+      iptables:
+        table: 'filter'
+        chain: INPUT
+        source: '10.10.11.0/24'
+        jump: ACCEPT
+
+    - name: "Create FORWARD rules for internal network"
+      iptables:
+        table: 'filter'
+        chain: FORWARD
+        source: '10.10.12.0/24'
+        jump: ACCEPT
+
+#    - name: "DROP policy FORWARD"
+#      iptables:
+#        table: filter
+#        chain: FORWARD
+#        policy: DROP
+
+- name: "Configuration firewall and routing with iptables service for host vm2 router"
+  hosts: router
+  become: true
+
+  tasks:
+    - name: "NAT for route internal network #2"
+      iptables:
+        table: 'nat'
+        chain: POSTROUTING
+        out_interface: 'eth3'
+        jump: MASQUERADE
+    
+    - name: "Create FORWARD rules for internal network"
+      iptables:
+        table: 'filter'
+        chain: FORWARD
+        source: '10.10.12.0/24'
+        jump: ACCEPT
+
+
+#- name: "Configure static route"
+#  host: router
+#  become: true
+
+#  tasks:
+#    - name: "eth settings for routing"
+#      ansible.netcommon.net_static_route:
+#        prefix: 0.0.0.0
+#        mask: 0.0.0.0
+#        next_hop: 10.10.12.1
+
+#sysctl -w net.ipv4.ip_forward=1
+#sysctl -p /etc/sysctl.conf

@@ -1,0 +1,52 @@
+---
+- name: "Configuration firewalld and routing vm1 web"
+  hosts: web
+  become: true
+
+  tasks:
+    - name: "Add Public Zone"
+      firewalld:
+        zone: public
+        service: https
+        permanent: true
+        state: enabled
+
+    - name: Gather information about active zones
+      ansible.posix.firewalld_info:
+        active_zones: yes
+
+    - name: Gather information about specific zones
+      ansible.posix.firewalld_info:
+        zones:
+          - public
+          - external
+          - internal
+
+    - name: "Add Public Zone"
+      firewalld:
+        zone: trusted
+        interface: eth1
+        state: enabled
+        permanent: yes
+
+    - name: "Add Public Zone"
+      firewalld:
+        zone: trusted
+        interface: eth2
+        state: enabled
+        permanent: yes
+
+    - name: "masquerde"
+      firewalld:
+        zone: trusted
+        masquerade: yes
+        permanent: yes
+        state: enabled
+
+    - name: "masquerde"
+      firewalld:
+        interface: eth0
+        masquerade: yes
+        permanent: yes
+        state: enabled
+

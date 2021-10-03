@@ -74,6 +74,8 @@
     source: "10.10.12.2/30"
     jump: ACCEPT
 
+
+
 - name: "Managment network"
   iptables:
     chain: INPUT
@@ -98,3 +100,9 @@
     value: '1'
     sysctl_set: yes
     reload: True
+
+#Set time zone on hosts(we can apply this seeting in vagrantfile)
+- name: "Set timezone to Asia/Irkutsk"
+  timezone:
+    name: Asia/Irkutsk
+    
