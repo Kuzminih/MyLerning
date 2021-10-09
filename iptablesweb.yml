@@ -77,7 +77,7 @@
         chain: POSTROUTING
         out_interface: 'eth3'
         jump: MASQUERADE
-    
+
     - name: "Create FORWARD rules for internal network"
       iptables:
         table: 'filter'

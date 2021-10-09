@@ -11,25 +11,14 @@
         permanent: true
         state: enabled
 
-    - name: Gather information about active zones
-      ansible.posix.firewalld_info:
-        active_zones: yes
-
-    - name: Gather information about specific zones
-      ansible.posix.firewalld_info:
-        zones:
-          - public
-          - external
-          - internal
-
-    - name: "Add Public Zone"
+    - name: "Add internal Zone"
       firewalld:
-        zone: trusted
+        zone: internal
         interface: eth1
         state: enabled
         permanent: yes
 
-    - name: "Add Public Zone"
+    - name: "Add managment Zone"
       firewalld:
         zone: trusted
         interface: eth2

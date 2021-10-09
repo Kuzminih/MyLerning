@@ -1,0 +1,12 @@
+Log created: 2021-10-03T12:04:59.817782000Z
+Process ID:  105924 (0x19dc4)
+Parent PID:  2005 (0x7d5)
+Executable:  /usr/lib/virtualbox/VBoxHeadless
+Arg[0]: /usr/lib/virtualbox/VBoxHeadless
+Arg[1]: --comment
+Arg[2]: MyLerning_vm1_1632985090231_82013
+Arg[3]: --startvm
+Arg[4]: 8525d6f5-8068-49cd-b6b6-09b81dc3d8bc
+Arg[5]: --vrde
+Arg[6]: config
+AddRef: illegal refcnt=3221225469 state=2
