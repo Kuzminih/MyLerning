@@ -1,33 +1,13 @@
 ---
 # drop rules
 # NAT settings
-- name: "NAT"
+- name: "NAT masquerade"
   iptables:
     table: 'nat'
     chain: POSTROUTING
     source: '10.10.12.0/24'
-    out_interface: 'eth1'
+    out_interface: 'eth0'
     jump: MASQUERADE
-
-# Routing to external network for host Router
-- name: "Out packages rule Route to external network"
-  iptables:
-    table: 'nat'
-    chain: PREROUTING
-    in_interface: 'eth3'
-    source: '10.10.12.2'
-    jump: DNAT
-    to_destination: '192.168.0.1'
-
-#- name: "Out packages rule Route to external network"
-#  iptables:
-#    table: 'nat'
-#    chain: PREROUTING
-#    in_interface: 'eth3'
-#    destination: '10.10.12.1'
-#    source: '10.10.12.2'
-#    jump: ACCEPT
-#    to_destination: '192.168.0.1'
 
 # Rules for forwarding internal networks
 - name: 'Forwarding for internal networks'
@@ -37,19 +17,12 @@
     source: '10.10.12.0/24'
     jump: ACCEPT
 
-- name: 'Forwarding for internal networks'
-  iptables:
-    table: 'filter'
-    chain: INPUT
-    destination: '192.168.0.1'
-    jump: ACCEPT
-
 # Rules for external network
 - name: "Rule from external network to Router host"
   iptables:
     table: 'filter'
     chain: FORWARD
-    destination: '10.10.12.2'
+    destination: '10.10.12.0/24'
     jump: ACCEPT
 
 # Open web ports to web server
@@ -74,6 +47,12 @@
     source: "10.10.12.2/30"
     jump: ACCEPT
 
+# Input rules for internal networks
+- name: "Internal-1 network"
+  iptables:
+    chain: INPUT
+    source: "10.10.12.0/24"
+    jump: ACCEPT
 
 
 - name: "Managment network"
@@ -82,16 +61,26 @@
     source: "10.10.11.0/24"
     jump: ACCEPT
 
-# Drop policy
-- name: "Drop other connection with INPUT policy"
+- name: "allow"
   iptables:
     chain: INPUT
-    policy: DROP
+    protocol: tcp
+    match: conntrack
+    ctstate: NEW,ESTABLISHED,RELATED
+    jump: ACCEPT
 
-- name: "Drop other connection with FORWARD policy"
+# Drop policy
+- name: "Drop "
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    jump: DROP
+
+- name: "Drop "
   iptables:
     chain: FORWARD
-    policy: DROP
+    protocol: tcp
+    jump: DROP
 
 # Systctl settings for using forwardig scheme
 - name: "sysctl"
@@ -105,4 +94,3 @@
 - name: "Set timezone to Asia/Irkutsk"
   timezone:
     name: Asia/Irkutsk
-    

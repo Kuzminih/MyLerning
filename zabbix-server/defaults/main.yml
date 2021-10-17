@@ -1,0 +1,3 @@
+---
+# defaults file for zabbix-server
+zabbixfrontendenabled: "1"

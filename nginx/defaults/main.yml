@@ -1,0 +1,11 @@
+---
+# defaults file vars
+PidFile: "/var/run/zabbix/zabbix_agentd.pid"
+LogFile: "/var/log/zabbix/zabbix_agentd.log"
+LogFileSize: "10"
+Server: "10.10.12.2"
+ListenPort: "10050"
+ListenIP: "10.10.12.1"
+ServerActive: "10.10.12.2"
+Hostname: "Web"
+Include: "/etc/zabbix/zabbix_agentd.d/*.conf"
