@@ -1,6 +1,7 @@
 # MyLearning Final task
 
-## 1. Deploy three Linux machines (you can use any convenient virtualization tools and hardware), divide them into the following roles: ROUTER, WEB, & DB## First we are create network with some settings to access the hosts.
+## 1. Deploy three Linux machines (you can use any convenient virtualization tools and hardware), divide them into the following roles: ROUTER, WEB, & DB
+## First we are create network with some settings to access the hosts.
 I'm using VirtualBox like provider and vagrant for configure VM's\
 
 There are three vms:\
@@ -54,14 +55,14 @@ Then i'm using ansible to configure iptables and route rules
 ***Rules for host web***\
 disable default route\
 ip route 0.0.0.0/0 via En1\
-ip route 10.10.11.0/24 via 10.10.12.2 #there're not needed this settings, but i'm need to show how it's works\
+ip route 10.10.11.0/24 via 10.10.11.1 #there're not needed this settings, but i'm need to show how it's works\
 ip route 10.10.12.0/30 via 10.10.12.2 #there're not needed this settings, but i'm need to show how it's works\
 ip tables POSTROUTING nat masquerade
 ip tables FORWARD to vm2-router 
 ___
 ***Rules for host router***\
 disable default route\
-ip route 0.0.0.0/0 via 10.10.11.1\
+ip route 0.0.0.0/0 via 10.10.12.1\
 ip route 10.10.12.3/24 via 10.10.12.1 #there're not needed this settings, but i'm need to show how it's works\
 ip route 10.10.12.7/30 via 10.10.12.6 #there're not needed this settings, but i'm need to show how it's works
 ip tables 
@@ -77,3 +78,30 @@ All settings is configured with ansible roles for hosts.\
 Host vm1-web
 Host vm2-router
 Host vm3-db
+
+Environment my hosts
+
+|       HOST        | Services         |
+|-------------------|:----------------:|
+| Web               | nginx            |
+|                   | zabbix-agent2    |
+|                   |                  |
+
+---
+
+|       HOST        | Services         |
+|-------------------|:----------------:|
+| Router            | nginx            |
+|                   | zabbix-agent2    |
+|                   | zabbix-server    |
+|                   | php74-fpm        |
+
+---
+
+|       HOST        | Services         |
+|-------------------|:----------------:|
+| DB                | percona 8.0      |
+|                   | zabbix-agent2    |
+|                   |                  |
+|                   |                  |
+
